@@ -23,7 +23,7 @@
 
 window.onload = function(){
     var container = document.getElementById('container');
-    container.textContent = generateRandomString(Math.floor(Math.random() * 3)); // 初始化為一個隨機長度的字串
+    container.textContent = generateRandomString(Math.floor(Math.random() * 3));
 }
 
 window.addEventListener("keyup",function(e){
@@ -34,8 +34,8 @@ window.addEventListener("keyup",function(e){
     console.log('great!');
     container.textContent = str.substring(1);
   }
-  var newstr = generateRandomString(Math.floor(Math.random() * 3) + 1); // 產生新的隨機字元
-  container.textContent += newstr; // 將新字元添加到原始文字的後方
+  var newstr = generateRandomString(Math.floor(Math.random() * 3) + 1);
+  container.textContent += newstr; 
 });
 
 </script>
