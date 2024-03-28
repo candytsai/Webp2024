@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <title>Document</title>
+  <style>
+     table {
+font-family: Arial, Helvetica, sans-serif;
+border-collapse: collapse;
+width: 100%;
+}
+td, th {
+border: 1px solid #ddd;
+padding: 6px;
+}
+tr:nth-child(even){background-color: #f2f2f2;}
+tr:hover {background-color: #ddd;}
+th {
+padding-top: 12px;
+padding-bottom: 12px;
+text-align: left;
+background-color: #04AA6D;
+color: white;
+  </style>
+</head>
+<body>
+  <h1>景點觀光展覽資訊  <input id="search" type="text" onchange="search()"></h1>
+  <table id="csie">
+    <tr>
+      <th>名稱</th>
+      <th>地點</th>
+      <th>票價</th>
+    </tr>
+  </table>
+  <button onclick="previousPage()">上一頁</button>
+  <span id="present"></span>
+  <button onclick="nextPage()">下一頁</button>
+  
+</body>
+  <script>
+    var openUrl = "https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&categorymethod=doFindTypeJ&category=6";
+var xhr = new XMLHttpRequest();
+xhr.open('GET', openUrl, true);
+xhr.send();
+xhr.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+    dataset = JSON.parse(this.responseText);
+    addNewData(dataset, 0); 
+  }
+};
+
+var currentPage = 0;
+var pageSize = 10; 
+var myTable = document.getElementById("csie");
+var filteredDataset; 
+
+function deleteRows() {
+  var rowCount = myTable.rows.length;
+  while (rowCount > 1) {
+    myTable.deleteRow(1); 
+    rowCount = myTable.rows.length; 
+  }
+}
+
+function addNewData(dataset, pageNumber) {
+  deleteRows();
+
+  var startIndex = pageNumber * pageSize;
+  var endIndex = Math.min(startIndex + pageSize, dataset.length); 
+  
+  for (var i = startIndex; i < endIndex; i++) {
+    var data = dataset[i];
+    var row = myTable.insertRow(-1);
+    row.insertCell(0).innerHTML = data['title'];
+    row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
+    row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
+  }
+  
+  updatePage(); 
+}
+
+function previousPage() {
+  currentPage--;
+  if (currentPage < 0) {
+    currentPage = 0;
+  }
+  addNewData(filteredDataset|| dataset, currentPage); 
+}
+
+function nextPage() {
+  currentPage++;
+  var maxPage = Math.ceil((filteredDataset ? filteredDataset.length : dataset.length) / pageSize) - 1;
+  if (currentPage > maxPage) {
+    currentPage = maxPage;
+  }
+  addNewData(filteredDataset || dataset, currentPage); 
+}
+
+function search() {
+  var searchInput = document.getElementById("search");
+  var keyword = searchInput.value.trim().toLowerCase(); 
+  filteredDataset = dataset.filter(function(item) {
+    return item.title.toLowerCase().includes(keyword) || 
+           item.showInfo[0].location.toLowerCase().includes(keyword) || 
+           item.showInfo[0].price.toLowerCase().includes(keyword); 
+  });
+  
+  currentPage = 0; 
+  addNewData(filteredDataset, currentPage); 
+}
+
+function updatePage() {
+  var present = document.getElementById("present");
+  var totalItems = filteredDataset ? filteredDataset.length : dataset.length; 
+  present.innerHTML = (currentPage + 1) + '/' + Math.ceil(totalItems / pageSize);
+}
+
+  </script>
+</html>
